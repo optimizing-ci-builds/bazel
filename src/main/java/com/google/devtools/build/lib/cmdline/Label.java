@@ -620,7 +620,7 @@ public final class Label implements Comparable<Label>, StarlarkValue, SkyKey, Co
 
   @Override
   public void str(Printer printer) {
-    printer.append(getCanonicalForm());
+    printer.append(getUnambiguousCanonicalForm());
   }
 
   @Override
