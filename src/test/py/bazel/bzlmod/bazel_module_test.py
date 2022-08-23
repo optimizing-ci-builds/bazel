@@ -400,5 +400,29 @@ class BazelModuleTest(test_base.TestBase):
     self.assertIn(
         'Target @ss~override//:choose_me up-to-date (nothing to build)', stderr)
 
+  def testDownload(self):
+    data_path = self.ScratchFile('data.txt', 'some data')
+    data_url = data_path.resolve().as_uri()
+    self.ScratchFile('MODULE.bazel', [
+        'data_ext = use_extension("//:ext.bzl", "data_ext")',
+        'use_repo(data_ext, "no_op")',
+    ])
+    self.ScratchFile('BUILD')
+    self.ScratchFile('WORKSPACE')
+    self.ScratchFile('ext.bzl', [
+        'def _no_op_impl(ctx):',
+        '  ctx.file("WORKSPACE")',
+        '  ctx.file("BUILD", "filegroup(name=\"no_op\")")',
+        'no_op = repository_rule(_no_op_impl)',
+        'def _data_ext_impl(ctx):',
+        '  if !ctx.download(url="%s", output="data.txt").success:' % data_url,
+        '    fail("download failed")',
+        '  if ctx.read("data.txt") != "some data":',
+        '    fail("unexpected downloaded content: %s" % ctx.read("data.txt"))',
+        '  no_op(name="no_op")',
+        'data_ext = module_extension(_data_ext_impl)',
+    ])
+    self.RunBazel(['build', '@no_op'], allow_failure=False)
+
 if __name__ == '__main__':
   unittest.main()
