@@ -75,6 +75,11 @@ public abstract class Module {
   public abstract int getCompatibilityLevel();
 
   /**
+   * List of bazel compatible versions that would run/fail this module
+   */
+  public abstract ImmutableList<String> getBazelCompatibility();
+
+  /**
    * Target patterns identifying execution platforms to register when this module is selected. Note
    * that these are what was written in module files verbatim, and don't contain canonical repo
    * names.
@@ -171,6 +176,14 @@ public abstract class Module {
 
     /** Optional; defaults to {@code 0}. */
     public abstract Builder setCompatibilityLevel(int value);
+
+    abstract ImmutableList.Builder<String> bazelCompatibilityBuilder();
+
+    @CanIgnoreReturnValue
+    public final Builder setBazelCompatibility(Iterable<String> values){
+      bazelCompatibilityBuilder().addAll(values);
+      return this;
+    }
 
     abstract ImmutableList.Builder<String> executionPlatformsToRegisterBuilder();
 
