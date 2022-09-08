@@ -166,6 +166,15 @@ public class ModuleFileGlobals {
             positional = false,
             defaultValue = "0"),
         @Param(
+            name = "repo_name",
+            doc =
+                "The name of the repository representing this module, as seen by the module itself."
+                    + " By default, the name of the repo is the name of the module. This can be"
+                    + " specified to ease migration for projects that have been using a repo name"
+                    + " for itself that differs from its module name.",
+            named = true,
+            positional = false,
+            defaultValue = "''"),
             name = "bazel_compatibility",
             doc =
                 "A list of bazel versions that allows users to declare which Bazel versions are"
@@ -213,6 +222,7 @@ public class ModuleFileGlobals {
       String name,
       String version,
       StarlarkInt compatibilityLevel,
+      String repoName,
       Iterable<?> bazelCompatibility,
       Iterable<?> executionPlatformsToRegister,
       Iterable<?> toolchainsToRegister,
@@ -224,6 +234,13 @@ public class ModuleFileGlobals {
     moduleCalled = true;
     if (!name.isEmpty()) {
       validateModuleName(name);
+    }
+    if (repoName.isEmpty()) {
+      repoName = name;
+      addRepoNameUsage(name, "as the current module name", thread.getCallerLocation());
+    } else {
+      RepositoryName.validateUserProvidedRepoName(repoName);
+      addRepoNameUsage(repoName, "as the module's own repo name", thread.getCallerLocation());
     }
     Version parsedVersion;
     try {
@@ -239,12 +256,12 @@ public class ModuleFileGlobals {
         .setCompatibilityLevel(compatibilityLevel.toInt("compatibility_level"))
         .setBazelCompatibility(
             checkAllCompatabilityVersions(bazelCompatibility, "bazel_compatibility"))
+        .setRepoName(repoName)
         .addExecutionPlatformsToRegister(
             checkAllAbsolutePatterns(
                 executionPlatformsToRegister, "execution_platforms_to_register"))
         .addToolchainsToRegister(
             checkAllAbsolutePatterns(toolchainsToRegister, "toolchains_to_register"));
-    addRepoNameUsage(name, "as the current module name", thread.getCallerLocation());
   }
 
   private static ImmutableList<String> checkAllAbsolutePatterns(Iterable<?> iterable, String where)
