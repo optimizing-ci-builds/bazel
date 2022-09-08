@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import os
+import pathlib
 import tempfile
 import unittest
 
@@ -401,8 +402,13 @@ class BazelModuleTest(test_base.TestBase):
         'Target @ss~override//:choose_me up-to-date (nothing to build)', stderr)
 
   def testDownload(self):
+<<<<<<< HEAD
     data_path = self.ScratchFile('data.txt', 'some data')
     data_url = data_path.resolve().as_uri()
+=======
+    data_path = self.ScratchFile('data.txt', ['some data'])
+    data_url = pathlib.Path(data_path).resolve().as_uri()
+>>>>>>> master
     self.ScratchFile('MODULE.bazel', [
         'data_ext = use_extension("//:ext.bzl", "data_ext")',
         'use_repo(data_ext, "no_op")',
@@ -412,17 +418,18 @@ class BazelModuleTest(test_base.TestBase):
     self.ScratchFile('ext.bzl', [
         'def _no_op_impl(ctx):',
         '  ctx.file("WORKSPACE")',
-        '  ctx.file("BUILD", "filegroup(name=\"no_op\")")',
+        '  ctx.file("BUILD", "filegroup(name=\\"no_op\\")")',
         'no_op = repository_rule(_no_op_impl)',
         'def _data_ext_impl(ctx):',
-        '  if !ctx.download(url="%s", output="data.txt").success:' % data_url,
+        '  if not ctx.download(url="%s", output="data.txt").success:' %
+        data_url,
         '    fail("download failed")',
-        '  if ctx.read("data.txt") != "some data":',
-        '    fail("unexpected downloaded content: %s" % ctx.read("data.txt"))',
+        '  if ctx.read("data.txt").strip() != "some data":',
+        '    fail("unexpected downloaded content: %s" % ctx.read("data.txt").strip())',
         '  no_op(name="no_op")',
         'data_ext = module_extension(_data_ext_impl)',
     ])
-    self.RunBazel(['build', '@no_op'], allow_failure=False)
+    self.RunBazel(['build', '@no_op//:no_op'], allow_failure=False)
 
 if __name__ == '__main__':
   unittest.main()
