@@ -29,6 +29,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
+/**
+ * Represents a bazel version. The version format supported is {RELEASE[SUFFIX]}, where:
+ * <ul>
+ *   <li>{RELEASE} is a sequence of decimal numbers separated by dots;
+ *   <li>{SUFFIX} could be:
+ *      1. {PRERELEASE} or {RELEASE_CANDIDATE} which is a sequence of "identifiers" (defined as
+ *         a non-empty sequence of alphanumerical characters, hyphens, and underscores) separated
+ *         by dots;
+ *      2. Any other string added by the platform running bazel which will be ignored while
+ *         comparing to other version EX:5.1.1-homebrew
+ * </ul>
+ */
 @AutoValue
 public abstract class BazelVersion implements Comparable<BazelVersion>{
 
