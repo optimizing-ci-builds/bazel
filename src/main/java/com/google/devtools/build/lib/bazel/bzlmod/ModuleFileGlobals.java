@@ -175,6 +175,7 @@ public class ModuleFileGlobals {
             named = true,
             positional = false,
             defaultValue = "''"),
+        @Param(
             name = "bazel_compatibility",
             doc =
                 "A list of bazel versions that allows users to declare which Bazel versions are"

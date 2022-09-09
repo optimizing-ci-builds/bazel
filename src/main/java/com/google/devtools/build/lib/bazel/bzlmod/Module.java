@@ -81,6 +81,8 @@ public abstract class Module {
    * projects that have been using a repo name for itself that differs from its module name.
    */
   public abstract String getRepoName();
+
+  /**
    * List of bazel compatible versions that would run/fail this module
    */
   public abstract ImmutableList<String> getBazelCompatibility();
