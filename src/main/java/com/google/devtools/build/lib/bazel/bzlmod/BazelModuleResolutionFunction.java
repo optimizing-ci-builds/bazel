@@ -98,7 +98,7 @@ public class BazelModuleResolutionFunction implements SkyFunction {
 
   private void validateVersionCompatability(String comVersion, String currentVersion,
       String moduleName) throws BazelModuleResolutionFunctionException {
-    if(currentVersion.isEmpty()) return;
+    if(currentVersion.isEmpty()) { return; }
 
     BazelVersion toCompare, curVer;
     int cutIndex = comVersion.contains("=") ? 2 : 1;
