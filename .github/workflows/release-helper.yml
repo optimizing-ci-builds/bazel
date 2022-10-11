@@ -2,7 +2,6 @@ name: release-helper
 on: [push]
 jobs:
   release-helper:
-    if: startsWith(github.event.comment.body, '@bazel-io ')
     runs-on: ubuntu-latest
     permissions:
       issues: write
