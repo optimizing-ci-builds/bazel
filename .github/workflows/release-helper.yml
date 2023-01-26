@@ -13,3 +13,4 @@ jobs:
         uses: bazelbuild/continuous-integration/actions/release-helper@master
         with:
           token: ${{ secrets.BAZEL_IO_TOKEN }}
+
