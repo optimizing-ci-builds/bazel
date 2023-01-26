@@ -1,7 +1,9 @@
 name: release-helper
-on:
+'on':
   issue_comment:
-    types: [created, edited]
+    types:
+    - created
+    - edited
 jobs:
   release-helper:
     if: startsWith(github.event.comment.body, '@bazel-io ')
@@ -9,7 +11,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Run helper
-        uses: bazelbuild/continuous-integration/actions/release-helper@master
-        with:
-          token: ${{ secrets.BAZEL_IO_TOKEN }}
+    - name: Run helper
+      uses: bazelbuild/continuous-integration/actions/release-helper@master
+      with:
+        token: ${{ secrets.BAZEL_IO_TOKEN }}
