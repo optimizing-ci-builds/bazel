@@ -1,15 +1,67 @@
 name: release-helper
-on:
-  issue_comment:
-    types: [created, edited]
+on: [push]
 jobs:
   release-helper:
-    if: startsWith(github.event.comment.body, '@bazel-io ')
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
+          pip install numpy
+      - run: sudo apt update
+      - run: sudo apt install inotify-tools
+      - run: inotifywait -mr /home/runner/work/bazel/bazel/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'optimizing-ci-builds'
+      - run: touch starting_releasehelper_Runhelper_12
+      - run: rm starting_releasehelper_Runhelper_12
       - name: Run helper
         uses: bazelbuild/continuous-integration/actions/release-helper@master
         with:
           token: ${{ secrets.BAZEL_IO_TOKEN }}
+      - run: touch starting_finished_finished_8979874
+        if: always()
+      - run: rm starting_finished_finished_8979874
+        if: always()
+      - name: Check script file exists and execute
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: .github/workflows/script.py
+      - name: File exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          echo 'not exists python file'
+          if: always()
+          run: |
+            python .github/workflows/script.py
+      - name: Checkout to destination CI-analyzes repo
+        uses: actions/checkout@v3
+        if: always()
+        with:
+          path: bazel
+          ref: '1677126310-259e146'
+          repository: 'UT-SE-Research/ci-analyzes'
+          token: '${{ secrets.API_TOKEN_GITHUB }}'
+          persist-credentials: true
+      - name: Copy files to push to another directory
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          mkdir -p bazel/bazel/.github/workflows/release-helper/releasehelper
+          cp -rvT optimizing-ci-builds-ci-analysis bazel/bazel/.github/workflows/release-helper/releasehelper
+      - name: Pushes analysis to another repository
+        if: steps.check_files.outputs.files_exists == 'true'
+        working-directory: bazel
+        run: |
+          git config --global user.name 'UT-SE-Research'
+          git config --global user.email '${{ secrets.EMAIL }}'
+          git add .
+          git commit -m 'rebased and pushed'
+          while ! git push -f origin 1677126310-259e146; do
+            git pull --rebase origin 1677126310-259e146
+            sleep $((RANDOM % 5 + 1))
+          done
