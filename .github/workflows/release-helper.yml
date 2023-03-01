@@ -1,10 +1,8 @@
 name: release-helper
-on:
-  issue_comment:
-    types: [created, edited]
+on: [push] # one-run-to-find-them-all
+
 jobs:
   release-helper:
-    if: startsWith(github.event.comment.body, '@bazel-io ')
     runs-on: ubuntu-latest
     permissions:
       issues: write
